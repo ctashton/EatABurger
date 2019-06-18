@@ -1,29 +1,24 @@
-const connection = require("./config/connection");
-const express = require('express');
-const bodyParser = require("body-parser");
-const exphbs = require("express-handlebars");
-const app = express();
-const PORT = process.env.PORT || 3000;
+var express = require('express');
+var bodyParser = require('body-parser');
+var methodOverride = require('method-override');
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+var port = process.env.PORT || 3000;
 
-// Add Routes
-app.use(express.static(__dirname + '/public'));
-app.use('/', require('./controllers/burgers_controller'));
+var app = express();
 
-// Set up handlebars view engine
-app.engine("handlebars", exphbs({ defaultLayout: "main" }));
-app.set("view engine", "handlebars");
+app.use("/static", express.static("public"));
 
+app.use(bodyParser.urlencoded({ extended: false }));
 
-// Connect to the database and start express server
-connection.connect(err => {
-    if (err) {
-        console.log(err);
-    } else {
-        app.listen(PORT, () => {
-            console.log(`App listening on port ${PORT}`);
-        });
-    }
-});
+app.use(methodOverride('_method'));
+
+var exphbs = require('express-handlebars');
+
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
+
+var routes = require('./controllers/burgers_controller.js');
+
+app.use('/', routes);
+
+app.listen(port);
